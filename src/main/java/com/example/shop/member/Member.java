@@ -4,9 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.UUID;
 
 @Schema(description = "유저 정보")
@@ -83,6 +81,7 @@ public class Member {
         this.saltKey = saltKey;
         this.flag = flag;
     }
+
 
     @PrePersist
     public void prePersist() {
