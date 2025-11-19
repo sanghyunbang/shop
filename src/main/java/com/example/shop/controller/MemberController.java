@@ -1,14 +1,17 @@
 package com.example.shop.controller;
 
+import com.example.shop.common.ResponseEntity;
 import com.example.shop.member.Member;
 import com.example.shop.member.MemberRepository;
 import com.example.shop.member.MemberRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @RestController
 @RequestMapping("${api.v1}/members")
@@ -31,7 +34,7 @@ public class MemberController {
             description = "요청으로 받은 회원 정보를 public.member 테이블에 저장한다."
     )
     @PostMapping
-    public Member create(@RequestBody MemberRequest request) {
+    public ResponseEntity<Member> create(@RequestBody MemberRequest request) {
 
         Member member = new Member(
                 UUID.randomUUID(),
@@ -42,8 +45,19 @@ public class MemberController {
                 request.saltKey(),
                 request.flag()
         );
+        Member member1 = memberRepository.save(member);
 
-        return memberRepository.save(member);
+        AtomicInteger cnt;
+        if(member1 instanceof Member) {
+            cnt=((List<?>) member1).size();
+        } else {
+            cnt = new AtomicInteger();
+            if(member1 instanceof Iterable) {
+                ((Iterable<Member>) member1).forEach(item -> cnt.getAndIncrement());
+            }
+        }
+
+        return new ResponseEntity<>(HttpStatus.OK.value(), member1, cnt.get());
     }
 
     @Operation(
