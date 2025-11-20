@@ -1,12 +1,16 @@
-package com.example.shop.member;
+package com.example.shop.member.domain;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
-
 @Schema(description = "유저 정보")
 @Data
 @Entity
@@ -16,19 +20,15 @@ public class Member {
     @Schema(description = "유저의 UUID")
     @Id
     private UUID id;
-
     @Schema(description = "유저의 email")
     @Column(nullable = false, length = 50, unique = true)
     private String email;
-
     @Schema(description = "유저명")
     @Column(name = "\"name\"", length = 20)
     private String name;
-
     @Schema(description = "비밀번호")
     @Column(name = "\"password\"", nullable = false, length = 100)
     private String password;
-
     @Schema(description = "핸드폰번호")
     @Column(nullable = false, length = 20, unique = true)
     private String phone;
@@ -51,13 +51,13 @@ public class Member {
     @Column(name = "flag", length = 5)
     private String flag;
     public Member(){}
-    public Member(UUID id,
-                  String email,
-                  String name,
-                  String password,
-                  String phone,
-                  String saltKey,
-                  String flag) {
+    private Member(UUID id,
+                   String email,
+                   String name,
+                   String password,
+                   String phone,
+                   String saltKey,
+                   String flag) {
         this.id = id;
         this.email = email;
         this.name = name;
@@ -66,14 +66,22 @@ public class Member {
         this.saltKey = saltKey;
         this.flag = flag;
     }
-    public Member(String id,
-                  String email,
-                  String name,
-                  String password,
-                  String phone,
-                  String saltKey,
-                  String flag) {
-        this.id = UUID.fromString(id);
+
+    public static Member create(String email,
+                                String name,
+                                String password,
+                                String phone,
+                                String saltKey,
+                                String flag) {
+        return new Member(UUID.randomUUID(), email, name, password, phone, saltKey, flag);
+    }
+
+    public void updateInformation(String email,
+                                  String name,
+                                  String password,
+                                  String phone,
+                                  String saltKey,
+                                  String flag) {
         this.email = email;
         this.name = name;
         this.password = password;
@@ -81,7 +89,6 @@ public class Member {
         this.saltKey = saltKey;
         this.flag = flag;
     }
-
 
     @PrePersist
     public void prePersist() {
